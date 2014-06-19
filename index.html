@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="css/custom.css" rel="stylesheet">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script>
+$(document).ready(function() {
+	$('#input').keypress(function (e) {
+      if (e.which == 13) {
+        $('#submit').click();
+        return false;
+	  }
+	});
+	$(".main").hide();
+	$("#submit").click(function() {
+		var URL = "http://en.wikipedia.org/w/api.php?format=json&action=query&list=search&"
+			   + "srsearch="+$("#input").val()+"&srprop=timestamp&callback=?";
+		$.getJSON( URL, {}, function (data) {
+			   $("#hits").text("Total Hits: "+data.query.searchinfo.totalhits);
+			   $(".page-header").text("Results");
+			   var items = [];
+			   $.each(data.query.search, function(result) {
+					var title = data.query.search[result].title;
+			        var timestamp = data.query.search[result].timestamp;
+					var date = timestamp.substring(0,timestamp.indexOf("T"));
+					var time = timestamp.substring(timestamp.indexOf("T")+1,timestamp.indexOf("Z"));
+					items.push( "<li class='list-group-item'><a href='http://en.wikipedia.org/wiki/"
+								+title+"'>"+title+"</a><div class='timestamp'>last edited <b>"+date
+								+"</b> at <b>"+time+"</b></div></li>" );
+				});
+				$("#results").html(items.join(""));
+					
+			   });
+		$(".main").ready(function() {$(".main").show();});
+	});
+});
+</script>
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+	  <div class="sidebar">
+		<ul class="nav nav-sidebar">
+		  <li>
+		    <a href="http://sphere.ms"><image id="logo" src="images/masthead.png" /></a>
+		  </li>
+          <li>
+		    <div class="navbar-form">
+		    <input type="text" class="form-control" id="input" placeholder="Query">
+			<button class="btn btn-primary" id="submit">Search</button>
+			</div>
+		  </li>
+		</ul>
+		<div class="spacer"></div>
+		<div class="info">
+		  created by Robert Maloney <br/>
+		  robertjamesmaloney@gmail.com
+		</div>
+	  </div>
+	  <div class="main">
+	    <h1 class="page-header"></h1>
+		<div id="styler">
+		  <ul class="list-group" id="results">
+		  </ul>
+	    </div>
+		<div class="hits" id="hits"></div>
+	  </div>
+    </div>
+  </div>
+</body>
+</html>
